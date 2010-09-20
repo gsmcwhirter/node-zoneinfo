@@ -1,0 +1,3 @@
+[submodule "lib/jspack"]
+	path = lib/jspack
+	url = git://github.com/pgriess/node-jspack.git

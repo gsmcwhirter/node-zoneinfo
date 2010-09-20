@@ -1,0 +1,4 @@
+This is a project intened to add zonefile-based timezone support to 
+(node.js) javascript Date objects.
+
+It is still in a very rough state.
