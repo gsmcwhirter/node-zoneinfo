@@ -1,4 +1,61 @@
-This is a project intened to add zonefile-based timezone support to 
-(node.js) javascript Date objects.
+= Intro
 
-It is still in a very rough state.
+This is a project intened to provide zonefile-based timezone supporting Date objects.
+
+It is still in a very rough state. Use at your own risk.
+
+= Usage
+
+var sys = require('sys');
+var TZDate = require('./lib/zoneinfo');
+
+var d = new TZDate();
+sys.puts(d);
+//=> 2010-09-21 03:18:23 GMT
+sys.puts(d.format("Y-m-d"));
+//=> 2010-09-21
+sys.puts(d.getTimezone());
+//=> UTC
+sys.puts(d.getTimezone(true));
+//=> Etc/UTC
+d.setTimezone("America/Denver");
+sys.puts(d);
+//=> 2010-09-20 21:18:23 GMT-0600
+sys.puts(d.getTimezone());
+//=> MDT
+d.setTimezone("America/Los_Angeles");
+sys.puts(d);
+//=> 2010-09-20 20:18:23 GMT-0700
+sys.puts(d.getTimezone());
+//=> PDT
+d.setTimezone("America/Phoenix");
+sys.puts(d);
+//=> 2010-09-20 20:18:23 GMT-0700
+sys.puts(d.getTimezone());
+//=> MST
+
+TZDate.setDefaultTimezone("America/New_York");
+var d = new TZDate("2010-11-08T16:00:00.000Z");
+sys.puts(d);
+//=> 2010-11-08 11:00:00 GMT-0500
+sys.puts(d.getTimezone());
+//=> EST
+d.setTimezone("America/Denver");
+sys.puts(d);
+//=> 2010-11-08 09:00:00 GMT-0700
+sys.puts(d.getTimezone());
+//=> MST
+d.setTimezone("America/Los_Angeles");
+sys.puts(d);
+//=> 2010-11-08 08:00:00 GMT-0800
+sys.puts(d.getTimezone());
+//=> PST
+d.setTimezone("America/Phoenix");
+sys.puts(d);
+//=> 2010-11-08 09:00:00 GMT-0700
+sys.puts(d.getTimezone());
+//=> MST
+
+= Tests
+
+Tests that exist are written for Expresso (http://github.com/visionmedia/expresso)
