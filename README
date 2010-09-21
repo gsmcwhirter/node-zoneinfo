@@ -7,7 +7,9 @@ It is still in a very rough state. Use at your own risk.
 = Usage
 
 var sys = require('sys');
-var TZDate = require('./lib/zoneinfo');
+var zoneinfo = require('./lib/zoneinfo'),
+    TZDate = zoneinfo.TZDate,
+    countrycodes = require('./lib/countrycodes');
 
 var d = new TZDate();
 sys.puts(d);
@@ -34,7 +36,7 @@ sys.puts(d);
 sys.puts(d.getTimezone());
 //=> MST
 
-TZDate.setDefaultTimezone("America/New_York");
+zoneinfo.setDefaultTimezone("America/New_York");
 var d = new TZDate("2010-11-08T16:00:00.000Z");
 sys.puts(d);
 //=> 2010-11-08 11:00:00 GMT-0500
@@ -55,6 +57,14 @@ sys.puts(d);
 //=> 2010-11-08 09:00:00 GMT-0700
 sys.puts(d.getTimezone());
 //=> MST
+
+sys.puts(sys.inspect(zoneinfo.listTimezones()));
+//=> [array of all timezones on the system]
+sys.puts(sys.inspect(zoneinfo.listTimezones("US")));
+//=> [array of all US timezones on the system]
+
+sys.puts(sys.inspect(countrycodes));
+//=> [object of Name: Code pairs]
 
 = Tests
 
