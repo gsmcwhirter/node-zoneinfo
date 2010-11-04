@@ -1,70 +1,82 @@
-= Intro
+# node-zoneinfo
+
+## Description
 
 This is a project intened to provide zonefile-based timezone supporting Date objects.
 
-= Usage
+## Installation
 
-var sys = require('sys');
-var zoneinfo = require('./lib/zoneinfo'),
-    TZDate = zoneinfo.TZDate,
-    countrycodes = require('./lib/countrycodes');
+You can install this through npm:
+    
+    npm install zoneinfo
+    
+##Usage
 
-var d = new TZDate();
-sys.puts(d);
-//=> 2010-09-21 03:18:23 GMT
-sys.puts(d.format("Y-m-d"));
-//=> 2010-09-21
-sys.puts(d.getTimezone());
-//=> UTC
-sys.puts(d.getTimezone(true));
-//=> Etc/UTC
-d.setTimezone("America/Denver");
-sys.puts(d);
-//=> 2010-09-20 21:18:23 GMT-0600
-sys.puts(d.getTimezone());
-//=> MDT
-d.setTimezone("America/Los_Angeles");
-sys.puts(d);
-//=> 2010-09-20 20:18:23 GMT-0700
-sys.puts(d.getTimezone());
-//=> PDT
-d.setTimezone("America/Phoenix");
-sys.puts(d);
-//=> 2010-09-20 20:18:23 GMT-0700
-sys.puts(d.getTimezone());
-//=> MST
+An example of usage is as follows:
 
-zoneinfo.setDefaultTimezone("America/New_York");
-var d = new TZDate("2010-11-08T16:00:00.000Z");
-sys.puts(d);
-//=> 2010-11-08 11:00:00 GMT-0500
-sys.puts(d.getTimezone());
-//=> EST
-d.setTimezone("America/Denver");
-sys.puts(d);
-//=> 2010-11-08 09:00:00 GMT-0700
-sys.puts(d.getTimezone());
-//=> MST
-d.setTimezone("America/Los_Angeles");
-sys.puts(d);
-//=> 2010-11-08 08:00:00 GMT-0800
-sys.puts(d.getTimezone());
-//=> PST
-d.setTimezone("America/Phoenix");
-sys.puts(d);
-//=> 2010-11-08 09:00:00 GMT-0700
-sys.puts(d.getTimezone());
-//=> MST
+    var sys = require('sys');
+    var zoneinfo = require('./lib/zoneinfo'),
+        TZDate = zoneinfo.TZDate,
+        countrycodes = require('./lib/countrycodes');
+    
+    var d = new TZDate();
+    sys.puts(d);
+    //=> 2010-09-21 03:18:23 GMT
+    sys.puts(d.format("Y-m-d"));
+    //=> 2010-09-21
+    sys.puts(d.getTimezone());
+    //=> UTC
+    sys.puts(d.getTimezone(true));
+    //=> Etc/UTC
+    d.setTimezone("America/Denver");
+    sys.puts(d);
+    //=> 2010-09-20 21:18:23 GMT-0600
+    sys.puts(d.getTimezone());
+    //=> MDT
+    d.setTimezone("America/Los_Angeles");
+    sys.puts(d);
+    //=> 2010-09-20 20:18:23 GMT-0700
+    sys.puts(d.getTimezone());
+    //=> PDT
+    d.setTimezone("America/Phoenix");
+    sys.puts(d);
+    //=> 2010-09-20 20:18:23 GMT-0700
+    sys.puts(d.getTimezone());
+    //=> MST
+    
+    zoneinfo.setDefaultTimezone("America/New_York");
+    var d = new TZDate("2010-11-08T16:00:00.000Z");
+    sys.puts(d);
+    //=> 2010-11-08 11:00:00 GMT-0500
+    sys.puts(d.getTimezone());
+    //=> EST
+    d.setTimezone("America/Denver");
+    sys.puts(d);
+    //=> 2010-11-08 09:00:00 GMT-0700
+    sys.puts(d.getTimezone());
+    //=> MST
+    d.setTimezone("America/Los_Angeles");
+    sys.puts(d);
+    //=> 2010-11-08 08:00:00 GMT-0800
+    sys.puts(d.getTimezone());
+    //=> PST
+    d.setTimezone("America/Phoenix");
+    sys.puts(d);
+    //=> 2010-11-08 09:00:00 GMT-0700
+    sys.puts(d.getTimezone());
+    //=> MST
+    
+    sys.puts(sys.inspect(zoneinfo.listTimezones()));
+    //=> [array of all timezones on the system]
+    sys.puts(sys.inspect(zoneinfo.listTimezones("US")));
+    //=> [array of all US timezones on the system]
+    
+    sys.puts(sys.inspect(countrycodes));
+    //=> [object of Name: Code pairs]
 
-sys.puts(sys.inspect(zoneinfo.listTimezones()));
-//=> [array of all timezones on the system]
-sys.puts(sys.inspect(zoneinfo.listTimezones("US")));
-//=> [array of all US timezones on the system]
-
-sys.puts(sys.inspect(countrycodes));
-//=> [object of Name: Code pairs]
-
-= Tests
+## Tests
 
 Tests that exist are written for Nodeunit.
-To run them, install nodeunit and then run "nodeunit test.js"
+To run them, install nodeunit and then run
+
+    nodeunit test.js
