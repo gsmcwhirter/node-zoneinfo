@@ -2,8 +2,6 @@
 
 This is a project intened to provide zonefile-based timezone supporting Date objects.
 
-It is still in a very rough state. Use at your own risk.
-
 = Usage
 
 var sys = require('sys');
@@ -68,4 +66,5 @@ sys.puts(sys.inspect(countrycodes));
 
 = Tests
 
-Tests that exist are written for Expresso (http://github.com/visionmedia/expresso)
+Tests that exist are written for Nodeunit.
+To run them, install nodeunit and then run "nodeunit test.js"

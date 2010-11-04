@@ -1,0 +1,20 @@
+{
+    "name": "zoneinfo",
+    "version": "0.1.0",
+    "description": "Library to parse zoneinfo files for use with a wrapper around Date objects.",
+    "homepage": "https://github.com/gsmcwhirter/node-zoneinfo",
+    "author": {
+        "name": "Gregory McWhirter",
+        "email": "greg@ideafreemonoid.org",
+        "url": "http://ideafreemonoid.org"
+    },
+    "main": "./lib/zoneinfo",
+    "modules": {
+        "countrycodes": "./lib/countrycodes"
+    },
+    "repository": {
+        "type": "git",
+        "url": "http://github.com/gsmcwhirter/node-zoneinfo.git"
+    },
+    "engines": ["node >= 0.2.0 < 0.3.0"]
+}
