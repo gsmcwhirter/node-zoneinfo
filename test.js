@@ -32,38 +32,40 @@ exports["date 2: advanced"] = function (test){
 };
 
 exports["timezones"] = function (test){
-    var us_timezones =  [ 'America/Adak'
-                        , 'America/Anchorage'
-                        , 'America/Boise'
-                        , 'America/Chicago'
-                        , 'America/Denver'
-                        , 'America/Detroit'
-                        , 'America/Indiana/Indianapolis'
-                        , 'America/Indiana/Knox'
-                        , 'America/Indiana/Marengo'
-                        , 'America/Indiana/Petersburg'
-                        , 'America/Indiana/Tell_City'
-                        , 'America/Indiana/Vevay'
-                        , 'America/Indiana/Vincennes'
-                        , 'America/Indiana/Winamac'
-                        , 'America/Juneau'
-                        , 'America/Kentucky/Louisville'
-                        , 'America/Kentucky/Monticello'
-                        , 'America/Los_Angeles'
-                        , 'America/Menominee'
-                        , 'America/New_York'
-                        , 'America/Nome'
-                        , 'America/North_Dakota/Center'
-                        , 'America/North_Dakota/New_Salem'
-                        , 'America/Phoenix'
-                        , 'America/Shiprock'
-                        , 'America/Yakutat'
-                        , 'Pacific/Honolulu'
-                        ];
+    var us_timezones =  ["America/Adak",
+                         "America/Anchorage",
+                         "America/Boise",
+                         "America/Chicago",
+                         "America/Denver",
+                         "America/Detroit",
+                         "America/Indiana/Indianapolis",
+                         "America/Indiana/Knox",
+                         "America/Indiana/Marengo",
+                         "America/Indiana/Petersburg",
+                         "America/Indiana/Tell_City",
+                         "America/Indiana/Vevay",
+                         "America/Indiana/Vincennes",
+                         "America/Indiana/Winamac",
+                         "America/Juneau",
+                         "America/Kentucky/Louisville",
+                         "America/Kentucky/Monticello",
+                         "America/Los_Angeles",
+                         "America/Menominee",
+                         "America/Metlakatla",
+                         "America/New_York",
+                         "America/Nome",
+                         "America/North_Dakota/Beulah",
+                         "America/North_Dakota/Center",
+                         "America/North_Dakota/New_Salem",
+                         "America/Phoenix",
+                         "America/Shiprock",
+                         "America/Sitka",
+                         "America/Yakutat",
+                         "Pacific/Honolulu"];
                         
     test.strictEqual(JSON.stringify(zoneinfo.listTimezones("US").sort()), JSON.stringify(us_timezones), "US timezone list");
     
-    test.strictEqual(zoneinfo.listTimezones().length, 516, "Full timezone list");
+    test.strictEqual(zoneinfo.listTimezones().length, 519, "Full timezone list");
     
     test.done();
 
