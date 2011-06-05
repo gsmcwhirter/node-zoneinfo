@@ -31,6 +31,20 @@ exports["date 2: advanced"] = function (test){
     test.done();    
 };
 
+exports["date3: more advanced"] = function (test){
+    var d = new TZDate("05-20-1983 3:37 pm", "America/New_York");
+    test.strictEqual(d.toString(), "1983-05-20 15:37:00 GMT-0400", "timezone string locality");
+    d.setTimezone("America/Los_Angeles");
+    test.strictEqual(d.toString(), "1983-05-20 12:37:00 GMT-0700", "timezone string locality after setTimezone");
+
+    d = new TZDate("5-20-1983 15:37", "America/Chicago");
+    test.strictEqual(d.toString(), "1983-05-20 15:37:00 GMT-0500", "timezone string locality 2");
+    d.setTimezone("America/Los_Angeles");
+    test.strictEqual(d.toString(), "1983-05-20 13:37:00 GMT-0700", "timezone string locality after setTimezone 2");
+
+    test.done();
+}
+
 exports["timezones"] = function (test){
     var us_timezones =  ["America/Adak",
                          "America/Anchorage",

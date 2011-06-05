@@ -14,10 +14,10 @@ You can install this through npm:
 
 An example of usage is as follows:
 
-    var sys = require('sys');
-    var zoneinfo = require('./lib/zoneinfo'),
+    var sys = require('util');
+    var zoneinfo = require('zoneinfo'),
         TZDate = zoneinfo.TZDate,
-        countrycodes = require('./lib/countrycodes');
+        countrycodes = zoneinfo.countrycodes;
     
     var d = new TZDate();
     sys.puts(d);

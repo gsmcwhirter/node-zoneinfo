@@ -1,226 +1,11 @@
 // This is a class designed to be an alternative to the standard Date objects
 // which uses zoneinfo files to determine and adjust between various timezones.
 
-var fs = require('fs');
-
-var TZDate = function (args){
-    var self = this;
-    this._zoneinfo;
-    this._zoneinfo_name;
-
-    this._localization = {
-        weekdays: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
-        weekdays_short: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
-        months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
-        months_short: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-    };
-    
-    this._resetOffset = function (newtz){
-        var old_offset = 0;
-        if (this._zoneinfo) old_offset = this._utcoffset();
-        this._zoneinfo = newtz;
-        this._date.setTime(this._date.getTime() + ((this._utcoffset() - old_offset) * 3600 * 1000));
-    };
-    
-    this._zeropad = function (value, len){
-        len = len || 2;
-        value += "";
-        
-        for (var i = value.length; i < len; i++){
-            value = "0"+value;
-        }
-        
-        return value;
-    };
-    
-    this._ttinfo = function (laststd){
-        var timestamp = Math.floor(this._date.getTime() / 1000),
-            idx = 0,
-            found = false;
-            
-        for (var i in this._zoneinfo.trans_list){
-            if (timestamp < this._zoneinfo.trans_list[i])
-            {
-                found = true;
-                break;
-            }
-            idx++;
-        }
-        
-        if (!found) return this._zoneinfo.ttinfo_std;
-        if (idx == 0) return this._zoneinfo.ttinfo_before;
-        
-        if (laststd)
-        {
-            while (idx > 0){
-                if (!this._zoneinfo.trans_idx[idx - 1].isdst) return this._zoneinfo.trans_idx[idx - 1];
-                idx--;
-            }
-            
-            return this._zoneinfo.ttinfo_std;
-        }
-        else return this._zoneinfo.trans_idx[idx - 1]
-        
-    };
-    
-    this._utcoffset = function (){
-        if (!this._zoneinfo.ttinfo_std) return 0;
-        return this._ttinfo().offset;
-    };
-    
-    this._dst = function (){
-        if (!this._zoneinfo.ttinfo_dst) return 0;
-        var tti = this._ttinfo();
-        if (!tti.isdst) return 0;
-        
-        return tti.offset - this._ttinfo(1).offset;
-    };
-    
-    this._tzname = function (){
-        if (!this._zoneinfo.ttinfo_std) return "";
-        return this._ttinfo().abbr;
-    };
-    
-    this.setTimezone = function (timezone){
-        if (_zoneinfo_cache[timezone])
-        {
-            this._resetOffset(_zoneinfo_cache[timezone]);
-        } 
-        else
-        {
-            var zi = parseZonefile(timezone);
-            _zoneinfo_cache[timezone] = zi;
-            this._resetOffset(zi);
-        }
-        
-        this._zoneinfo_name = timezone;
-    };
-    
-    this.getTimezone = function (full_name){
-        if (full_name) return this._zoneinfo_name;
-        
-        return this._tzname();
-        //var tz = this._tzname();
-        //return this._dst() != 0 ? tz.replace("S","D") : tz;
-    };
-    
-    this._formats = {
-        // Y Full year
-        "Y": function (){ return self._date.getUTCFullYear(); },
-        // m zero-padded month number 1-12
-        "m": function (){ return self._zeropad(self._date.getUTCMonth() + 1); },
-        // n month number 1-12
-        "n": function (){ return self._date.getUTCMonth() + 1; },
-        // d zero-padded date number
-        "d": function (){ return self._zeropad(self._date.getUTCDate()); },
-        // j date number
-        "j": function (){ return self._date.getUTCDate(); },
-        // F full month name
-        "F": function (){ return self._localization.months[self._date.getUTCMonth()]; },
-        // M short month name
-        "M": function (){ return self._localization.months_short[self._date.getUTCMonth()]; },
-        // l full weekday name
-        "l": function (){ return self._localization.weekdays[self._date.getUTCDay()]; },
-        // D short weekday name
-        "D": function (){ return self._localization.weekdays_short[self._date.getUTCDay()]; },
-        // H zero-padded 24-hour
-        "H": function (){ return self._zeropad(self._date.getUTCHours()); },
-        // h zero-padded 12-hour
-        "h": function (){ return self._zeropad(((self._date.getUTCHours() - 1) % 12) + 1); },
-        // G 24-hour
-        "G": function (){ return self._date.getUTCHours(); },
-        // g 12-hour
-        "g": function (){ return ((self._date.getUTCHours() - 1) % 12) + 1; },
-        // i zero-padded minutes
-        "i": function (){ return self._zeropad(self._date.getUTCMinutes()); },
-        // s zero-padded seconds
-        "s": function (){ return self._zeropad(self._date.getUTCSeconds()); },
-        // A upper-case AM/PM
-        "A": function (){ return self._date.getUTCHours() >= 12 ? "PM" : "AM"; },
-        // a lower-case am/pm
-        "a": function (){ return self._date.getUTCHours() >= 12 ? "pm" : "am"; },
-        // T short timezone
-        "T": function (){ return self.getTimezone(false); },
-        // t full timezone name
-        "t": function (){ return self.getTimezone(true); },
-        // O UTC offset
-        "O": function (){ 
-            var offset = parseInt(self._utcoffset());
-            var minus = false;
-            if (offset < 0)
-            {
-                minus = true;
-                offset = -offset;
-            }
-            
-            offset = self._zeropad(offset)+"00";
-            if (minus) offset = "-"+offset;
-            else offset = "+"+offset;
-            
-            return offset;
-        }
-    };
-    
-    
-    this.format = function (fmt_string){
-        if (!fmt_string) return this.toString();
-        
-        var slashct = 0;
-        var arr = fmt_string.split("");
-        fmt_string = "";
-        
-        arr.forEach(function (chr, ind){
-            if (chr == "\\"){
-                slashct++;
-                return;
-            }
-            
-            if (self._formats[chr])
-            {
-                var realslashes = Math.floor(slashct / 2);
-                for (var i = 0; i < realslashes; i++){ fmt_string += "\\"; }
-                if (slashct % 2)
-                {
-                    fmt_string += chr;
-                }
-                else
-                {   
-                    //parse
-                    fmt_string += self._formats[chr]();
-                }
-                
-                slashct = 0;
-            }
-            else
-            {
-                for (var i = 0; i < slashct; i++){ fmt_string += "\\"; }
-                slashct = 0;
-                fmt_string += chr;
-            }
-        });
-        
-        return fmt_string;
-    };
-    
-    this.setLocalization = function (localization){
-        this._localization = localization;
-    };
-    
-    this.toString = function (){
-        if (this._formats["O"]() == "+0000")
-            return this.format("Y-m-d H:i:s")+" GMT";
-        else
-            return this.format("Y-m-d H:i:s \\G\\M\\TO");
-    };
-    
-    //constructor
-    this._date = args ? (new Date(args)) : (new Date());
-    this.setTimezone(this._zoneinfo_default);
-};
+var fs = require('fs'),
+    jspack = require('./lib/jspack/jspack').jspack;
 
 module.exports.TZDate = TZDate;
-
-TZDate.prototype._zoneinfo_default = "Etc/UTC";
+module.exports.countrycodes = require("./countrycodes");
 
 var _zoneinfo_path = "/usr/share/zoneinfo";
 var _zoneinfo_listcache = {};
@@ -257,7 +42,6 @@ var isTimezone = module.exports.isTimezone = function (timezone){
 };
 
 var parseZonefile = function (timezone){
-    var jspack = require('./jspack/jspack').jspack;
     
     var file = _zoneinfo_path + "/" + timezone;
     
@@ -304,7 +88,7 @@ var parseZonefile = function (timezone){
             // abbreviation strings" stored in the file.
             var _charct = tmp[5];
             
-            var tzinfo = {
+            tzinfo = {
                 trans_list: null,
                 trans_idx: null,
                 ttinfo_list: null,
@@ -427,7 +211,7 @@ var parseZonefile = function (timezone){
             });
             
             // Replace ttinfo indexes for ttinfo objects.
-            tzinfo.trans_idx = tzinfo.trans_idx.map(function (item){ return tzinfo.ttinfo_list[item]; });
+            tzinfo.trans_idx = tzinfo.trans_idx.map(function (item){return tzinfo.ttinfo_list[item];});
             
             // Set standard, dst, and before ttinfos. before will be
             // used when a given time is before any transitions,
@@ -439,9 +223,9 @@ var parseZonefile = function (timezone){
                     tzinfo.ttinfo_std = tzinfo.ttinfo_first = tzinfo.ttinfo_list[0]
                 else
                 {
-                    for (var i = _timect - 1; i > -1; i--)
+                    for (var j = _timect - 1; j > -1; j--)
                     {
-                        var tti = tzinfo.trans_idx[i];
+                        var tti = tzinfo.trans_idx[j];
                         if (!tzinfo.ttinfo_std && !tti.isdst)
                             tzinfo.ttinfo_std = tti;
                         else if (!tzinfo.ttinfo_dst && tti.isdst)
@@ -454,11 +238,11 @@ var parseZonefile = function (timezone){
                     if (tzinfo.ttinfo_dst && !tzinfo.ttinfo_std)
                         tzinfo.ttinfo_std = tzinfo.ttinfo_dst
                         
-                    for (var i in tzinfo.ttinfo_list)
+                    for (var k in tzinfo.ttinfo_list)
                     {
-                        if (!tzinfo.ttinfo_list[i].isdst)
+                        if (!tzinfo.ttinfo_list[k].isdst)
                         {
-                            tzinfo.ttinfo_before = tzinfo.ttinfo_list[i];
+                            tzinfo.ttinfo_before = tzinfo.ttinfo_list[k];
                             break;
                         } 
                     }
@@ -511,7 +295,7 @@ module.exports.listTimezones = function (country_code){
         if (country_code)
         {
             var buffer = fs.readFileSync(path + "/" + "zone.tab", 'ascii');
-            var buffer = buffer.split("\n");
+            buffer = buffer.split("\n");
             
             buffer.forEach(function (line){
                 if (!line.trim()) return;
@@ -561,4 +345,246 @@ module.exports.listTimezones = function (country_code){
     {
         return false;
     }
+};
+
+function TZDate(arg, timezone){
+    this._zoneinfo = null;
+    this._zoneinfo_name = null;
+
+    arg = arg.trim();
+
+    var _adjust = false;
+
+    //constructor
+    if (arg && arg != "now"){
+        if (arg[arg.length - 1] != "Z"){
+            _adjust = true;
+            this._date = new Date(arg + " Z");
+        }
+        else {
+            this._date = new Date(arg);
+        }
+    }
+    else {
+        this._date = new Date();
+        
+    }
+
+    this.setTimezone((timezone && isTimezone(timezone)) ? timezone : this._zoneinfo_default);
+
+    if (_adjust){
+        this._date.setTime(this._date.getTime() - this._utcoffset() * 3600 * 1000);
+    }
+}
+
+TZDate.prototype._zoneinfo_default = "Etc/UTC";
+
+TZDate.prototype._formats = function (letter){
+    var self = this;
+    var letters = {
+        // Y Full year
+        "Y": function (){return self._date.getUTCFullYear();},
+        // m zero-padded month number 1-12
+        "m": function (){return self._zeropad(self._date.getUTCMonth() + 1);},
+        // n month number 1-12
+        "n": function (){return self._date.getUTCMonth() + 1;},
+        // d zero-padded date number
+        "d": function (){return self._zeropad(self._date.getUTCDate());},
+        // j date number
+        "j": function (){return self._date.getUTCDate();},
+        // F full month name
+        "F": function (){return self._localization.months[self._date.getUTCMonth()];},
+        // M short month name
+        "M": function (){return self._localization.months_short[self._date.getUTCMonth()];},
+        // l full weekday name
+        "l": function (){return self._localization.weekdays[self._date.getUTCDay()];},
+        // D short weekday name
+        "D": function (){return self._localization.weekdays_short[self._date.getUTCDay()];},
+        // H zero-padded 24-hour
+        "H": function (){return self._zeropad(self._date.getUTCHours());},
+        // h zero-padded 12-hour
+        "h": function (){return self._zeropad(((self._date.getUTCHours() - 1) % 12) + 1);},
+        // G 24-hour
+        "G": function (){return self._date.getUTCHours();},
+        // g 12-hour
+        "g": function (){return ((self._date.getUTCHours() - 1) % 12) + 1;},
+        // i zero-padded minutes
+        "i": function (){return self._zeropad(self._date.getUTCMinutes());},
+        // s zero-padded seconds
+        "s": function (){return self._zeropad(self._date.getUTCSeconds());},
+        // A upper-case AM/PM
+        "A": function (){return self._date.getUTCHours() >= 12 ? "PM" : "AM";},
+        // a lower-case am/pm
+        "a": function (){return self._date.getUTCHours() >= 12 ? "pm" : "am";},
+        // T short timezone
+        "T": function (){return self.getTimezone(false);},
+        // t full timezone name
+        "t": function (){return self.getTimezone(true);},
+        // O UTC offset
+        "O": function (){
+            var offset = parseInt(self._utcoffset());
+            var minus = false;
+            if (offset < 0)
+            {
+                minus = true;
+                offset = -offset;
+            }
+
+            offset = self._zeropad(offset)+"00";
+            if (minus) offset = "-"+offset;
+            else offset = "+"+offset;
+
+            return offset;
+        }
+    };
+
+    return letters[letter];
+};
+
+TZDate.prototype._localization = {
+    weekdays: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+    weekdays_short: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+    months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+    months_short: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+};
+
+TZDate.prototype._resetOffset = function (newtz){
+    var old_offset = 0;
+    if (this._zoneinfo) old_offset = this._utcoffset();
+    this._zoneinfo = newtz;
+    this._date.setTime(this._date.getTime() + ((this._utcoffset() - old_offset) * 3600 * 1000));
+};
+
+TZDate.prototype._zeropad = function (value, len){
+    len = len || 2;
+    value += "";
+
+    for (var i = value.length; i < len; i++){
+        value = "0"+value;
+    }
+
+    return value;
+};
+
+TZDate.prototype._ttinfo = function (laststd){
+    var timestamp = Math.floor(this._date.getTime() / 1000),
+        idx = 0,
+        found = false;
+
+    for (var i in this._zoneinfo.trans_list){
+        if (timestamp < this._zoneinfo.trans_list[i])
+        {
+            found = true;
+            break;
+        }
+        idx++;
+    }
+
+    if (!found) return this._zoneinfo.ttinfo_std;
+    if (idx == 0) return this._zoneinfo.ttinfo_before;
+
+    if (laststd)
+    {
+        while (idx > 0){
+            if (!this._zoneinfo.trans_idx[idx - 1].isdst) return this._zoneinfo.trans_idx[idx - 1];
+            idx--;
+        }
+
+        return this._zoneinfo.ttinfo_std;
+    }
+    else return this._zoneinfo.trans_idx[idx - 1]
+
+};
+
+TZDate.prototype._utcoffset = function (){
+    if (!this._zoneinfo.ttinfo_std) return 0;
+    return this._ttinfo().offset;
+};
+
+TZDate.prototype._dst = function (){
+    if (!this._zoneinfo.ttinfo_dst) return 0;
+    var tti = this._ttinfo();
+    if (!tti.isdst) return 0;
+
+    return tti.offset - this._ttinfo(1).offset;
+};
+
+TZDate.prototype._tzname = function (){
+    if (!this._zoneinfo.ttinfo_std) return "";
+    return this._ttinfo().abbr;
+};
+
+TZDate.prototype.setTimezone = function (timezone){
+    if (_zoneinfo_cache[timezone])
+    {
+        this._resetOffset(_zoneinfo_cache[timezone]);
+    }
+    else
+    {
+        var zi = parseZonefile(timezone);
+        _zoneinfo_cache[timezone] = zi;
+        this._resetOffset(zi);
+    }
+
+    this._zoneinfo_name = timezone;
+};
+
+TZDate.prototype.getTimezone = function (full_name){
+    if (full_name) return this._zoneinfo_name;
+
+    return this._tzname();
+};
+
+
+TZDate.prototype.format = function (fmt_string){
+    if (!fmt_string) return this.toString();
+
+    var slashct = 0;
+    var arr = fmt_string.split("");
+    fmt_string = "";
+
+    var self = this;
+
+    arr.forEach(function (chr, ind){
+        if (chr == "\\"){
+            slashct++;
+            return;
+        }
+
+        if (self._formats(chr))
+        {
+            var realslashes = Math.floor(slashct / 2);
+            for (var i = 0; i < realslashes; i++){fmt_string += "\\";}
+            if (slashct % 2)
+            {
+                fmt_string += chr;
+            }
+            else
+            {
+                //parse
+                fmt_string += self._formats(chr)();
+            }
+
+            slashct = 0;
+        }
+        else
+        {
+            for (var j = 0; j < slashct; j++){fmt_string += "\\";}
+            slashct = 0;
+            fmt_string += chr;
+        }
+    });
+
+    return fmt_string;
+};
+
+TZDate.prototype.setLocalization = function (localization){
+    this._localization = localization;
+};
+
+TZDate.prototype.toString = function (){
+    if (this._formats("O")() == "+0000")
+        return this.format("Y-m-d H:i:s")+" GMT";
+    else
+        return this.format("Y-m-d H:i:s \\G\\M\\TO");
 };
