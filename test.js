@@ -1,4 +1,4 @@
-var zoneinfo = require(__dirname+'/lib/zoneinfo'),
+var zoneinfo = require(__dirname+'/index'),
     TZDate = zoneinfo.TZDate;
 
 exports["date 1: basics"] = function (test){
@@ -131,5 +131,16 @@ exports["formatting"] = function (test){
     test.strictEqual(d.format("O"), "+0000", "format - O");
     test.strictEqual(e.format("O"), "+0000", "format - O 2");
     
+    test.done();
+};
+
+exports["issue 2"] = function (test){
+    var t1 = function (){
+        var local_date = new TZDate(Date.now());
+        local_date.setTimezone("America/Chicago");
+    }
+
+    test.doesNotThrow(t1);
+
     test.done();
 };

@@ -351,13 +351,15 @@ function TZDate(arg, timezone){
     this._zoneinfo = null;
     this._zoneinfo_name = null;
 
-    arg = arg.trim();
-
     var _adjust = false;
 
     //constructor
     if (arg && arg != "now"){
-        if (arg[arg.length - 1] != "Z"){
+        if (typeof arg.trim != "undefined"){
+            arg = arg.trim();
+        }
+
+        if (typeof arg != "number" && arg[arg.length - 1] != "Z"){
             _adjust = true;
             this._date = new Date(arg + " Z");
         }
@@ -367,7 +369,6 @@ function TZDate(arg, timezone){
     }
     else {
         this._date = new Date();
-        
     }
 
     this.setTimezone((timezone && isTimezone(timezone)) ? timezone : this._zoneinfo_default);

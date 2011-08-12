@@ -1,6 +1,6 @@
 {
     "name": "zoneinfo",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "description": "Library to parse zoneinfo files for use with a wrapper around Date objects.",
     "homepage": "https://github.com/gsmcwhirter/node-zoneinfo",
     "author": {
