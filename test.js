@@ -89,9 +89,11 @@ exports["formatting"] = function (test){
     var d = new TZDate("2010-09-21T03:18:23.000Z");
     var e = new TZDate("2010-10-01T14:31:01.001Z");
     var f = new TZDate("2010-10-01T00:31:01.001Z");
+    var g = new TZDate("2010-10-01T12:31:01.001Z");
     d.setTimezone("Etc/UTC");
     e.setTimezone("Etc/UTC");
     f.setTimezone("Etc/UTC");
+    g.setTimezone("Etc/UTC");
     
     test.strictEqual(d.format("Y"), "2010", "format - Y");
     test.strictEqual(d.format("m"), "09", "format - m");
@@ -115,11 +117,13 @@ exports["formatting"] = function (test){
     test.strictEqual(d.format("h"), "03", "format - h");
     test.strictEqual(e.format("h"), "02", "format - h 2");
     test.strictEqual(f.format("h"), "12", "format - h 3");
+    test.strictEqual(g.format("h"), "12", "format - h 4");
     test.strictEqual(d.format("G"), "3", "format - G");
     test.strictEqual(e.format("G"), "14", "format - G 2");
     test.strictEqual(d.format("g"), "3", "format - g");
     test.strictEqual(e.format("g"), "2", "format - g 2");
     test.strictEqual(f.format("g"), "12", "format - g 3");
+    test.strictEqual(g.format("g"), "12", "format - g 4");
     test.strictEqual(d.format("i"), "18", "format - i");
     test.strictEqual(e.format("i"), "31", "format - i 2");
     test.strictEqual(d.format("s"), "23", "format - s");
