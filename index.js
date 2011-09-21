@@ -404,11 +404,11 @@ TZDate.prototype._formats = function (letter){
         // H zero-padded 24-hour
         "H": function (){return self._zeropad(self._date.getUTCHours());},
         // h zero-padded 12-hour
-        "h": function (){return self._zeropad(((self._date.getUTCHours() - 1) % 12) + 1);},
+        "h": function (){return self._zeropad((self._date.getUTCHours() % 12) || 12);},
         // G 24-hour
         "G": function (){return self._date.getUTCHours();},
         // g 12-hour
-        "g": function (){return ((self._date.getUTCHours() - 1) % 12) + 1;},
+        "g": function (){return (self._date.getUTCHours() % 12) || 12;},
         // i zero-padded minutes
         "i": function (){return self._zeropad(self._date.getUTCMinutes());},
         // s zero-padded seconds
