@@ -2,7 +2,7 @@
 // which uses zoneinfo files to determine and adjust between various timezones.
 
 var fs = require('fs'),
-    jspack = require('./lib/jspack/jspack').jspack;
+    jspack = require('jspack').jspack;
 
 module.exports.TZDate = TZDate;
 module.exports.countrycodes = require("./countrycodes");
@@ -42,16 +42,16 @@ var isTimezone = module.exports.isTimezone = function (timezone){
 };
 
 var parseZonefile = function (timezone){
-    
+
     var file = _zoneinfo_path + "/" + timezone;
-    
+
     if (isTimezone(timezone))
     {
         var tzinfo = {};
         var buffer = fs.readFileSync(file);
-        
+
         var buffer_idx = 0;
-        
+
         // From tzfile(5):
         //
         // The time zone information files used by tzset(3)
@@ -87,7 +87,7 @@ var parseZonefile = function (timezone){
             // The  number  of  characters  of "time zone
             // abbreviation strings" stored in the file.
             var _charct = tmp[5];
-            
+
             tzinfo = {
                 trans_list: null,
                 trans_idx: null,
@@ -96,7 +96,7 @@ var parseZonefile = function (timezone){
                 ttinfo_dst: null,
                 ttinfo_before: null
             };
-            
+
             // The above header is followed by tzh_timecnt four-byte
             // values  of  type long,  sorted  in ascending order.
             // These values are written in ``standard'' byte order.
@@ -110,7 +110,7 @@ var parseZonefile = function (timezone){
             }
             else
                 tzinfo.trans_list = [];
-                
+
             // Next come tzh_timecnt one-byte values of type unsigned
             // char; each one tells which of the different types of
             // ``local time'' types described in the file is associated
@@ -124,8 +124,8 @@ var parseZonefile = function (timezone){
             }
             else
                 tzinfo.trans_idx = [];
-                
-                
+
+
             // Each ttinfo structure is written as a four-byte value
             // for tt_gmtoff  of  type long,  in  a  standard  byte
             // order, followed  by a one-byte value for tt_isdst
@@ -136,18 +136,18 @@ var parseZonefile = function (timezone){
             // tt_abbrind serves  as an index into the array of
             // time zone abbreviation characters that follow the
             // ttinfo structure(s) in the file.
-            
+
             var _ttinfo = [];
             for (var i = 0; i < _typect; i++){
                 _ttinfo.push(jspack.Unpack(">lbb", buffer.slice(buffer_idx, buffer_idx + 6)));
                 buffer_idx += 6;
             }
-            
-            
+
+
             var _abbr = buffer.slice(buffer_idx, buffer_idx + _charct).toString();
             buffer_idx += _charct;
-            
-            
+
+
             // Then there are tzh_leapcnt pairs of four-byte
             // values, written in  standard byte  order;  the
             // first  value  of  each pair gives the time (as
@@ -156,15 +156,15 @@ var parseZonefile = function (timezone){
             // leap seconds to be applied after the given time.
             // The pairs of values are sorted in ascending order
             // by time.
-            
+
             var _leap = null;
             if (_leapct)
             {
                 _leap = jspack.Unpack(">"+(_leapct * 2)+"l", buffer.slice(buffer_idx, buffer_idx + (_leapct * 8)));
                 buffer_idx += _leapct * 8;
             }
-            
-            
+
+
             // Then there are tzh_ttisstdcnt standard/wall
             // indicators, each stored as a one-byte value;
             // they tell whether the transition times associated
@@ -178,8 +178,8 @@ var parseZonefile = function (timezone){
                 _isstd = jspack.Unpack(">"+_ttisstdct+"b", buffer.slice(buffer_idx, buffer_idx + _ttisstdct));
                 buffer_idx += _ttisstdct;
             }
-            
-            
+
+
             // Finally, there are tzh_ttisgmtcnt UTC/local
             // indicators, each stored as a one-byte value;
             // they tell whether the transition times associated
@@ -193,14 +193,14 @@ var parseZonefile = function (timezone){
                 _isgmt = jspack.Unpack(">"+_ttisgmtct+"b", buffer.slice(buffer_idx, buffer_idx + _ttisgmtct));
                 buffer_idx += _ttisgmtct;
             }
-            
-            
+
+
             //finished reading
-            
+
             tzinfo.ttinfo_list = [];
             _ttinfo.forEach(function (item, index){
                 item[0] = Math.floor((item[0] + 30) / (60*60));
-                
+
                 tzinfo.ttinfo_list.push({
                     offset: item[0],
                     isdst: item[1],
@@ -209,10 +209,10 @@ var parseZonefile = function (timezone){
                     isgmt: _ttisgmtct > index && _isgmt[index] != 0
                 });
             });
-            
+
             // Replace ttinfo indexes for ttinfo objects.
             tzinfo.trans_idx = tzinfo.trans_idx.map(function (item){return tzinfo.ttinfo_list[item];});
-            
+
             // Set standard, dst, and before ttinfos. before will be
             // used when a given time is before any transitions,
             // and will be set to the first non-dst ttinfo, or to
@@ -230,28 +230,28 @@ var parseZonefile = function (timezone){
                             tzinfo.ttinfo_std = tti;
                         else if (!tzinfo.ttinfo_dst && tti.isdst)
                             tzinfo.ttinfo_dst = tti;
-                        
+
                         if (tzinfo.ttinfo_dst && tzinfo.ttinfo_std)
                             break;
                     }
-                    
+
                     if (tzinfo.ttinfo_dst && !tzinfo.ttinfo_std)
                         tzinfo.ttinfo_std = tzinfo.ttinfo_dst
-                        
+
                     for (var k in tzinfo.ttinfo_list)
                     {
                         if (!tzinfo.ttinfo_list[k].isdst)
                         {
                             tzinfo.ttinfo_before = tzinfo.ttinfo_list[k];
                             break;
-                        } 
+                        }
                     }
-                    
+
                     if (!tzinfo.ttinfo_before)
                         tzinfo.ttinfo_before = tzinfo.ttinfo_list[0];
                 }
             }
-            
+
             /*# Now fix transition times to become relative to wall time.
             #
             # I'm not sure about this. In my tests, the tz source file
@@ -271,7 +271,7 @@ var parseZonefile = function (timezone){
                     # This is dst time. Convert to std.
                     self._trans_list[i] += laststdoffset
             self._trans_list = tuple(self._trans_list)*/
-            
+
             return tzinfo;
         }
     }
@@ -283,11 +283,11 @@ var parseZonefile = function (timezone){
 
 module.exports.listTimezones = function (country_code){
     country_code = country_code ? country_code.trim().toUpperCase() : "";
-    
+
     if (_zoneinfo_listcache[country_code || "_"]){
         return _zoneinfo_listcache[country_code || "_"];
     }
-    
+
     var path = _zoneinfo_path;
     var stat = fs.statSync(path);
     if (stat.isDirectory())
@@ -296,29 +296,29 @@ module.exports.listTimezones = function (country_code){
         {
             var buffer = fs.readFileSync(path + "/" + "zone.tab", 'ascii');
             buffer = buffer.split("\n");
-            
+
             buffer.forEach(function (line){
                 if (!line.trim()) return;
                 if (line.substring(0,1) == "#") return;
-                
+
                 line = line.split("\t");
                 var ccode = line[0].trim().toUpperCase();
-                
+
                 if (!_zoneinfo_listcache[ccode]) _zoneinfo_listcache[ccode] = [];
-                
+
                 if (_zoneinfo_listcache[ccode].indexOf(line[2]) == -1)
                     _zoneinfo_listcache[ccode].push(line[2]);
             });
-            
+
             return _zoneinfo_listcache[country_code];
         }
         else
         {
             var retlist = [];
             var list = fs.readdirSync(path);
-            
+
             var root_ignore = ["posix","right","SystemV","US"];
-            
+
             function descend(parent, list){
                 parent = parent ? parent + "/" : "";
                 for (var i in list){
@@ -332,14 +332,14 @@ module.exports.listTimezones = function (country_code){
                     }
                 }
             }
-            
+
             descend("", fs.readdirSync(path).sort());
-            
+
             _zoneinfo_listcache["_"] = retlist;
-            
+
             return retlist;
         }
-        
+
     }
     else
     {

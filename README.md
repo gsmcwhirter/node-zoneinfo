@@ -7,9 +7,9 @@ This is a project intened to provide zonefile-based timezone supporting Date obj
 ## Installation
 
 You can install this through npm:
-    
+
     npm install zoneinfo
-    
+
 ##Usage
 
 An example of usage is as follows:
@@ -18,7 +18,7 @@ An example of usage is as follows:
     var zoneinfo = require('zoneinfo'),
         TZDate = zoneinfo.TZDate,
         countrycodes = zoneinfo.countrycodes;
-    
+
     var d = new TZDate();
     sys.puts(d);
     //=> 2010-09-21 03:18:23 GMT
@@ -43,7 +43,7 @@ An example of usage is as follows:
     //=> 2010-09-20 20:18:23 GMT-0700
     sys.puts(d.getTimezone());
     //=> MST
-    
+
     zoneinfo.setDefaultTimezone("America/New_York");
     var d = new TZDate("2010-11-08T16:00:00.000Z");
     sys.puts(d);
@@ -65,18 +65,22 @@ An example of usage is as follows:
     //=> 2010-11-08 09:00:00 GMT-0700
     sys.puts(d.getTimezone());
     //=> MST
-    
+
     sys.puts(sys.inspect(zoneinfo.listTimezones()));
     //=> [array of all timezones on the system]
     sys.puts(sys.inspect(zoneinfo.listTimezones("US")));
     //=> [array of all US timezones on the system]
-    
+
     sys.puts(sys.inspect(countrycodes));
     //=> [object of Name: Code pairs]
 
 ## Tests
 
-Tests that exist are written for Nodeunit.
-To run them, install nodeunit and then run
+Tests that exist are written for Expresso (http://visionmedia.github.com/expresso/).
+To run them, install expresso and then run
 
-    nodeunit test.js
+    expresso
+
+Alternatively, you can run
+
+    expresso test/index.js
