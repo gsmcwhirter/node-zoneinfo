@@ -199,7 +199,7 @@ var parseZonefile = function (timezone){
 
             tzinfo.ttinfo_list = [];
             _ttinfo.forEach(function (item, index){
-                item[0] = Math.floor((item[0] + 30) / (60*60));
+                item[0] = Math.floor(item[0] / 60);
 
                 tzinfo.ttinfo_list.push({
                     offset: item[0],
@@ -374,7 +374,7 @@ function TZDate(arg, timezone){
     this.setTimezone((timezone && isTimezone(timezone)) ? timezone : this._zoneinfo_default);
 
     if (_adjust){
-        this._date.setTime(this._date.getTime() - this._utcoffset() * 3600 * 1000);
+        this._date.setTime(this._date.getTime() - this._utcoffset() * 60 * 1000);
     }
 }
 
@@ -431,7 +431,9 @@ TZDate.prototype._formats = function (letter){
                 offset = -offset;
             }
 
-            offset = self._zeropad(offset)+"00";
+            var minutes = offset % 60;
+            var hours = (offset - minutes) / 60;
+            offset = self._zeropad(hours) + self._zeropad(minutes);
             if (minus) offset = "-"+offset;
             else offset = "+"+offset;
 
@@ -453,7 +455,7 @@ TZDate.prototype._resetOffset = function (newtz){
     var old_offset = 0;
     if (this._zoneinfo) old_offset = this._utcoffset();
     this._zoneinfo = newtz;
-    this._date.setTime(this._date.getTime() + ((this._utcoffset() - old_offset) * 3600 * 1000));
+    this._date.setTime(this._date.getTime() + ((this._utcoffset() - old_offset) * 60 * 1000));
 };
 
 TZDate.prototype._zeropad = function (value, len){
