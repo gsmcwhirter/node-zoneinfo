@@ -45,6 +45,21 @@ exports["date3: more advanced"] = function (beforeExit, assert){
 
 }
 
+exports["date4: half hour timezones"] = function (beforeExit, assert){
+    var d = new TZDate("05-20-1983 12:00 pm", "America/New_York");
+    assert.eql(d.toString(), "1983-05-20 12:00:00 GMT-0400", "Base date 1 for 1/2 hour timezone test");
+    
+    d.setTimezone("America/Caracas");
+    assert.eql(d.toString(), "1983-05-20 12:00:00 GMT-0400", "Old dates don't change");
+    
+    var d2 = new TZDate("02-20-2013 12:00 pm", "America/New_York");
+    assert.eql(d2.toString(), "2013-02-20 12:00:00 GMT-0500", "Base date 2 for 1/2 hour timezone test");
+    
+    d2.setTimezone("America/Caracas");
+    assert.eql(d2.toString(), "2013-02-20 12:30:00 GMT-0430", "New dates do change");
+    
+}
+
 exports["timezones"] = function (beforeExit, assert){
     var us_timezones =  ["America/Adak",
                          "America/Anchorage",
@@ -80,8 +95,6 @@ exports["timezones"] = function (beforeExit, assert){
     assert.eql(JSON.stringify(zoneinfo.listTimezones("US").sort()), JSON.stringify(us_timezones), "US timezone list");
 
     assert.eql(zoneinfo.listTimezones().length, 524, "Full timezone list");
-
-
 
 };
 
