@@ -79,7 +79,7 @@ exports["timezones"] = function (beforeExit, assert){
 
     assert.eql(JSON.stringify(zoneinfo.listTimezones("US").sort()), JSON.stringify(us_timezones), "US timezone list");
 
-    assert.eql(zoneinfo.listTimezones().length, 523, "Full timezone list");
+    assert.eql(zoneinfo.listTimezones().length, 524, "Full timezone list");
 
 
 
