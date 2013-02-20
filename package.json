@@ -1,6 +1,6 @@
 {
     "name": "zoneinfo",
-    "version": "0.1.7",
+    "version": "0.1.8",
     "description": "Library to parse zoneinfo files for use with a wrapper around Date objects.",
     "homepage": "https://github.com/gsmcwhirter/node-zoneinfo",
     "author": {
@@ -8,6 +8,18 @@
         "email": "greg@ideafreemonoid.org",
         "url": "http://ideafreemonoid.org"
     },
+    "contributors": [
+      {
+        "name": "acruikshank",
+        "email": "",
+        "url": "https://github.com/acruikshank"
+      },
+      {
+        "name": "John Todd",
+        "email": "",
+        "url": "https://github.com/jtoddhandmark"
+      }
+    ]
     "repository": {
         "type": "git",
         "url": "https://github.com/gsmcwhirter/node-zoneinfo.git"
