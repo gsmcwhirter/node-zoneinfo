@@ -88,3 +88,7 @@ Alternatively, you can run
 Or even better, run `npm install` and then
 
     npm test
+
+## License
+
+MIT (see LICENSE file)
