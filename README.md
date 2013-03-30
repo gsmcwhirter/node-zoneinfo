@@ -1,6 +1,6 @@
 # node-zoneinfo
 
-## Description
+[![Build Status](https://travis-ci.org/gsmcwhirter/node-zoneinfo.png?branch=master)](https://travis-ci.org/gsmcwhirter/node-zoneinfo)
 
 This is a project intened to provide zonefile-based timezone supporting Date objects.
 
@@ -84,3 +84,7 @@ To run them, install expresso and then run
 Alternatively, you can run
 
     expresso test/index.js
+    
+Or even better, run `npm install` and then
+
+    npm test
